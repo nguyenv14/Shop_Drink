@@ -71,8 +71,6 @@ class CommentProductController extends Controller
                     </div>
                 ';
             }
-
-            // echo $output;
         }
         else
         {

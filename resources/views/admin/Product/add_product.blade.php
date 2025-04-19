@@ -32,7 +32,7 @@
                     </div>
                     <div class="form-group">
                         <label for="">Danh Mục Sản Phẩm</label>
-                        <select class="form-control m-bot15" id="category" name="product_category">
+                        <select class="form-control m-bot15" id="category" name="category_id">
                             @foreach ($data_category as $key => $category)
                                 <option value="{{ $category->category_id }}">{{ $category->category_name }}
                                 </option>

@@ -49,7 +49,9 @@
                             </div>
                             <h4>Chào Mừng Quản Trị Viên Đến Với Hệ Thống !</h4>
                             <h6 class="font-weight-light">Đăng Nhập Tài Khoản Quản Trị Để Tiếp Tục.</h6>
-                            <form class="pt-3" action="{{ URL::to('/admin/login') }}" method="post">
+                            <form class="pt-3" 
+                            action="{{ URL::to('/admin/login') }}
+                            " method="post">
                                 {{ csrf_field() }} {{-- chống sql injection tự động sinh ra trường token --}}
                                 <div class="form-group">
                                     <input type="email" name="admin_email" class="form-control form-control-lg"
@@ -59,7 +61,7 @@
                                     <input type="password" name="admin_password" class="form-control form-control-lg"
                                         id="exampleInputPassword1" placeholder="Password">
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <div class="g-recaptcha" data-sitekey="{{ env('CAPTCHA_KEY') }}"></div>
                                     <br />
                                     @if ($errors->has('g-recaptcha-response'))
@@ -70,7 +72,7 @@
                                             message_toastr("warning", "Bạn Chưa Vượt Mã Xác Minh Google !", "Cảnh Báo !");
                                         </script>
                                     @endif
-                                </div>
+                                </div> --}}
                                 <div class="mt-3">
                                     <input type="submit"
                                         class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn"

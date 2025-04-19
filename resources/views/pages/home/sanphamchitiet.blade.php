@@ -415,66 +415,7 @@
                 <div class="recentlyviewed_boxcontent owl-carousel owl-theme">
 
                     {{-- flashsale_product --}}
-                    @foreach ($flashsale_product as $key => $flashsale_product)
-                    <div class="flashsalehotel_boxcontent item">
-                                <div class="flashsalehotel_boxcontent_img_text">
-                                    <div class="flashsalehotel_img-box">
-                                        <a href="{{ url('/san-pham/san-pham-chi-tiet?product_id=' . $flashsale_product->product_id . '') }}" class="flashsalehotel_boxcontent_hover">
-                                        <img class="flashsalehotel_img" width="284px" height="160px"
-                                            style="object-fit: cover;"
-                                            src="{{ asset('public/fontend/assets/img/product/' . $flashsale_product->product_image . '') }}"
-                                            alt="">
-                                        </a>
-                                            
-                                    </div>
-                                    <div class="flashsalehotel_text">
-                                        <div class="flashsalehotel_text-title">
-                                            {{ $flashsale_product->product_name }}
-                                            
-                                        </div>
-                                        <div class="flashsalehotel_place">
-                                            <div>
-                                                <i class="fa-solid fa-certificate"></i>
-                                                {{ $flashsale_product->category->category_name }}
-                                            </div>
-                                        </div>
-
-                                        <div class="flashsalehotel_text-time">
-                                            Giảm giá
-                                        </div>
-                                        <div class="flashsalehotel_text-box-price">
-                                            <div style="display: flex;">
-                                                <div class="flashsalehotel_text-box-price-two">
-                                                    <span>{{ number_format($flashsale_product->flashsale->flashsale_price_sale, 0, ',', '.') }}đ</span>
-                                                </div>
-                                                <div class="flashsalehotel_text-box-price-one">
-                                                    <span>/</span>
-                                                </div>
-                                                <div class="flashsalehotel_text-box-price-one">
-                                                    <span
-                                                        style="text-decoration: line-through">{{ number_format($flashsale_product->product_price, 0, ',', '.') }}đ</span>
-                                                </div>
-                                            </div>
-                                            <div class="flashsalehotel_text-box-price-three bordernhay">
-                                                <div style="margin-left: 8px;"
-                                                    class="flashsalehotel_text-box-price-three-l chunhay">
-                                                    <div class="cart-hover">
-                                                        <i class="fa-solid fa-heart"></i>
-                                                        <span style="font-size: 14px;">Yêu Thích</span>
-                                                    </div>
-                                                </div>
-                                                <div class="flashsalehotel_text-box-price-three-r chunhay">
-                                                    <div class="cart-hover">
-                                                        <i class="fa-solid fa-cart-shopping"></i>
-                                                        <span style="font-size: 14px;">Đặt Hàng</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                    @endforeach
+                  
 
                     @foreach ($product_category as $product_cate)
                     <div class="flashsalehotel_boxcontent item">
@@ -507,13 +448,33 @@
                                           </div>
                                       </div> -->
                                         <div class="flashsalehotel_text-time">
+                                        @if ($product_cate->flashsale_status == 1)
+                                            Giảm giá
+                                            @else 
                                             Sản phẩm cùng danh mục
+                                            @endif
                                         </div>
                                         <div class="flashsalehotel_text-box-price">
+                                            @if ($product_cate->flashsale_status == 1)
+                                                <div style="display: flex;">
+                                                <div class="flashsalehotel_text-box-price-two">
+                                                
+                                                    <span>{{ number_format($product_cate->flashsale->flashsale_price_sale, 0, ',', '.') }}đ</span>
+                                                </div>
+                                                <div class="flashsalehotel_text-box-price-one">
+                                                    <span>/</span>
+                                                </div>
+                                                <div class="flashsalehotel_text-box-price-one">
+                                                    <span
+                                                        style="text-decoration: line-through">{{ number_format($product_cate->product_price, 0, ',', '.') }}đ</span>
+                                                </div>
+                                            </div>
+                                            @else
                                             <div class="flashsalehotel_text-box-price-two">
                                                 <span>
                                                     {{ number_format($product_cate->product_price, 0, ',', '.') }}đ</span>
                                             </div>
+                                            @endif
                                             <div class="flashsalehotel_text-box-price-three bordernhay">
                                                 <div style="margin-left: 8px;"
                                                     class="flashsalehotel_text-box-price-three-l chunhay">
@@ -696,7 +657,6 @@
                     product_qty: product_qty,
                     product_type: product_type
                 },
-               
                 success: function(data) {
                     // load_cart();
                     // $('#shopping').hide();

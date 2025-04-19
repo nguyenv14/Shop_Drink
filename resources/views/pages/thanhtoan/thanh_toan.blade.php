@@ -45,7 +45,7 @@
                 </div>
 
                 <div class="request">
-                    <?php $shipping = session()->get('shipping') ?>
+                    <?php $shipping = session()->get('shipping'); ?>
                     <div class="request-title">
                         <span>Yêu cầu đặc biệt</span>
                     </div>
@@ -55,29 +55,19 @@
                             Yêu cầu đặc biệt
                         </div>
                         <div class="request-bd-box">
-                            {{-- <div class="request-bd-box-item">
-                                <div>
-                                    <input class="Special-requirements" type="checkbox" name="" id="requirements-one"
-                                        data-choose="1">
-                                </div>
-                                <div>
-                                    <label for="requirements-one">Giao nhanh trong 1 giờ</label>
-                                </div>
-                            </div> --}}
                             <div class="request-bd-box-item">
-                                @if($shipping['shipping_special_requirements'] == 1)
-                                <div>
-                                    <input class="Special-requirements" checked type="checkbox" name="" id="requirements-two"
-                                        data-choose="">
-                                </div>
-                                    @else
-                                <div>
+                                @if ($shipping['shipping_special_requirements'] == 1)
+                                    <div>
+                                        <input class="Special-requirements" checked type="checkbox" name=""
+                                            id="requirements-two" data-choose="">
+                                    </div>
+                                @else
+                                    <div>
 
-                                    <input class="Special-requirements" type="checkbox" name="" id="requirements-two"
-                                        data-choose="1">
-                                </div>
-
-                                    @endif
+                                        <input class="Special-requirements" type="checkbox" name=""
+                                            id="requirements-two" data-choose="1">
+                                    </div>
+                                @endif
                                 <div>
                                     <label for="requirements-two">Bỏ đá riêng</label>
                                 </div>
@@ -94,7 +84,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                     <div class="receipt-box">
                         <div class="receipt-title">
                             <span>Người Đặt Hàng</span>
@@ -111,30 +101,6 @@
                         <div class="receipt-text">
                             <h5>Địa Chỉ: <span style="font-weight: 900"> {{ $shipping['shipping_address'] }}</span></h5>
                         </div>
-                        
-                        {{-- <div class="receipt-text">
-                            <span class="receipt-text">Khi cần xuất hoá đơn GTGT, Quý khách vui lòng gửi yêu cầu đến
-                                BonoDrinks kể
-                                <div style="margin-left: 10px;">
-                                    từ thời điểm nhận mail đến trước 15h00 ngày hôm sau
-                                </div>
-                            </span>
-                        </div> --}}
-                        {{-- <div class="receipt-box-btn-text">
-                            <div class="receipt-box-btn">
-                                <div>
-                                    <input type="checkbox" name="" id="checkbox-receipt" data-receipt_choose="1"
-                                        checked>
-                                </div>
-                                <div>
-                                    <span>Yêu cầu xuất hóa đơn</span>
-                                </div>
-                            </div>
-
-                            <div class="receipt-box-text">
-                                <span style="color: #5dc7eb;">Điều khoản xuất hóa đơn</span>
-                            </div>
-                        </div> --}}
                     </div>
                 </div>
 
@@ -284,13 +250,6 @@
                             </div>
                         </div>
                         <div class="Btn_payment_box">
-                            {{-- <form action="{{ url('/thanh-toan/vnpay-payment') }}" method="post">
-                                @csrf
-                                <div class="">
-                                    <button type="submit" name="redirect" value="0">Thanh Toán VN Pay Test</button>
-                                </div>    
-                            </form> --}}
-
                             <div class="Btn_payment_box-Btn">
                                 <span>Thanh Toán</span>
                             </div>
@@ -310,23 +269,23 @@
 
                         <div class="contentBox-Text-Bottom-Box">
                             <div class="contentBox-Text-Bottom-Box-One" style="">
-                                 @if (session()->get('cart') != null)
+                                @if (session()->get('cart') != null)
                                     @foreach (Cart::content() as $cart)
                                         <div class="Box-Cart-Mini">
                                             <div class="Cart-img" style="height: 60px; width: 300px;display: flex;">
                                                 <img style="width: 50px;height: 50px; border-radius: 50%; vertical-align: middle;"
-                                                    src="{{ asset('public/fontend/assets/img/product/'.$cart->options->product_image.'') }}"
+                                                    src="{{ asset('public/fontend/assets/img/product/' . $cart->options->product_image . '') }}"
                                                     alt="">
 
                                                 <div style="width: auto; margin-left: 10px;margin-top: -5px ;">
                                                     <p style="font-size: 15px;overflow: hidden; height: 18px;">
                                                         {{ $cart->name }}
                                                     </p>
-                                                    <p style="font-size: 15px;"> SL: {{ $cart->qty }} +  @foreach ($sizes as $key => $size) 
-                                                        @if($size->product_type_id == $cart->options->product_type)
-                                                            {{ $size->product_type_name }}
-                                                        @endif
-                                                    @endforeach
+                                                    <p style="font-size: 15px;"> SL: {{ $cart->qty }} + @foreach ($sizes as $key => $size)
+                                                            @if ($size->product_type_id == $cart->options->product_type)
+                                                                {{ $size->product_type_name }}
+                                                            @endif
+                                                        @endforeach
                                                     </p>
                                                 </div>
 
@@ -334,15 +293,14 @@
 
                                             <div class="contentBox-Text-Bottom-Box-One-Item">
                                                 <div class="contentBox-Text-Bottom-Box-One-Item-Top">
-                                                    <?php $price_product = $cart->qty * $cart->price ?>
+                                                    <?php $price_product = $cart->qty * $cart->price; ?>
                                                     <span
-                                                        style="margin-left: 17px;">{{ number_format($price_product, 0, ',','.') }}đ</span>
+                                                        style="margin-left: 17px;">{{ number_format($price_product, 0, ',', '.') }}đ</span>
                                                 </div>
-                                            </div>  
+                                            </div>
                                         </div>
-                                        
-                                     @endforeach
-                                @endif 
+                                    @endforeach
+                                @endif
 
                             </div>
                         </div>
@@ -358,14 +316,13 @@
                                 </div>
                                 <div class="contentBox-Text-Bottom-Box-One-Item">
                                     <div class="contentBox-Text-Bottom-Box-One-Item-Top">
-                                         
-                                            <?php  $price_all_product = filter_var(Cart::total(), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION); ?> 
-                                            <span
-                                                style="margin-left: 17px;">
-                                                {{-- 90.000đ --}}
-                                                {{ number_format($price_all_product, 0, ',', '.') . 'đ' }} 
-                                            </span>
-                                       
+
+                                        <?php $price_all_product = filter_var(Cart::total(), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION); ?>
+                                        <span style="margin-left: 17px;">
+                                            {{-- 90.000đ --}}
+                                            {{ number_format($price_all_product, 0, ',', '.') . 'đ' }}
+                                        </span>
+
                                     </div>
                                 </div>
                             </div>
@@ -376,21 +333,20 @@
                                 </div>
                                 <div class="contentBox-Text-Bottom-Box-One-Item">
                                     <div class="contentBox-Text-Bottom-Box-One-Item-Top">
-                                        @if (session()->get('fee') != null) 
-                                            <?php $fee = session()->get('fee'); 
-                                            $fee_feeship = $fee['fee_feeship']; 
-                                            ?> 
-                                            <span
-                                                style="margin-left: 17px;">
+                                        @if (session()->get('fee') != null)
+                                            <?php $fee = session()->get('fee');
+                                            $fee_feeship = $fee['fee_feeship'];
+                                            ?>
+                                            <span style="margin-left: 17px;">
                                                 {{-- 25.000đ --}}
-                                                {{ '+' . number_format($fee_feeship, 0, ',', '.') . 'đ' }} 
+                                                {{ '+' . number_format($fee_feeship, 0, ',', '.') . 'đ' }}
                                             </span>
-                                        @endif 
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                             @if (session()->get('coupon-cart') != null)
-                                <?php $coupon = session()->get('coupon-cart'); ?> 
+                                <?php $coupon = session()->get('coupon-cart'); ?>
                                 <div class="contentBox-Text-Bottom-Box-One-Box">
                                     <div
                                         class="contentBox-Text-Bottom-Box-One-Item contentBox-Text-Bottom-Box-One-Item-Layout">
@@ -399,7 +355,7 @@
                                         </div>
                                         <div class="contentBox-Text-Bottom-Box-One-Item-Layout-item-Sale">
                                             <span>
-                                                {{ $coupon->coupon_name_code }} 
+                                                {{ $coupon->coupon_name_code }}
                                                 {{-- 25.000đ --}}
                                             </span>
                                         </div>
@@ -414,19 +370,18 @@
                                                 $price_sale = ($price_all_product / 100) * $coupon->coupon_price_sale;
                                             } else {
                                                 $price_sale = $coupon->coupon_price_sale;
-                                            } 
-                                            ?> 
-                                            <span
-                                                style="color: #68c78f;margin-left: 17px;">
+                                            }
+                                            ?>
+                                            <span style="color: #68c78f;margin-left: 17px;">
                                                 {{-- 50.000đ --}}
-                                                {{ '-' . number_format($price_sale, 0, ',', '.') . 'đ' }} 
+                                                {{ '-' . number_format($price_sale, 0, ',', '.') . 'đ' }}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             @else
                                 <?php $price_sale = 0; ?>
-                            @endif 
+                            @endif
 
                             <div class="Totalpayment">
                                 <div class="Totalpayment-left">
@@ -440,28 +395,28 @@
                                 <div class="Totalpayment-right">
                                     <div class="Totalpayment-right-Top">
                                         <?php
-                                            if($price_all_product > $price_sale){
-                                                $totalpayment = $price_all_product + $fee_feeship - $price_sale; 
-                                            }else{
-                                                $totalpayment = $fee_feeship;
-                                            } 
-                                        ?> 
+                                        if ($price_all_product > $price_sale) {
+                                            $totalpayment = $price_all_product + $fee_feeship - $price_sale;
+                                        } else {
+                                            $totalpayment = $fee_feeship;
+                                        }
+                                        ?>
                                         <span>
                                             {{-- 100.000đ  --}}
-                                            {{ number_format($totalpayment, 0, ',', '.') . 'đ' }} 
+                                            {{ number_format($totalpayment, 0, ',', '.') . 'đ' }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            @if (session()->get('coupon-cart') != null) 
+                            @if (session()->get('coupon-cart') != null)
                                 <div class="Content-end">
                                     <i class="fa-solid fa-money-bill"></i>
                                     <span style="margin-left: 5px;">
                                         Chúc mừng! Bạn đã tiết kiệm được
                                         {{-- 25.000đ --}}
-                                        {{ number_format($price_sale, 0, ',', '.') . 'đ' }}</span> 
+                                        {{ number_format($price_sale, 0, ',', '.') . 'đ' }}</span>
                                 </div>
-                            @endif 
+                            @endif
 
                         </div>
                     </div>
@@ -471,72 +426,74 @@
     </div>
 
     <script src=" {{ asset('public/fontend/assets/js/thanhtoan.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
-       
-   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
+        integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
     <script>
         $('#insert-notes').blur(function() {
             var content_notes = $(this).val();
             var _token = $('meta[name="csrf-token"]').attr('content');
 
-            
-                $.ajax({
-                    url: '{{ url('/thanh-toan/yeu-cau-rieng') }}',
-                    method: 'POST',
-                    data: {
-                        _token: _token,
-                        content_notes: content_notes,
-    
-                    },
-                    success: function(data) {
-                        if (data == "true") {
-                            message_toastr("success", "Đã Ghi Lại Yêu Cầu!", "Thông báo");
-                        }
-                    },
-                    error: function() {
-                        alert("Bug Huhu :<<");
+
+            $.ajax({
+                url: '{{ url('/thanh-toan/yeu-cau-rieng') }}',
+                method: 'POST',
+                data: {
+                    _token: _token,
+                    content_notes: content_notes,
+
+                },
+                success: function(data) {
+                    if (data == "true") {
+                        message_toastr("success", "Đã Ghi Lại Yêu Cầu!", "Thông báo");
                     }
-                })
+                },
+                error: function() {
+                    alert("Bug Huhu :<<");
+                }
+            })
         });
     </script>
 
     <script>
-       $('.Special-requirements').click(function(){
-        if (document.getElementById("requirements-two").checked == true) {
-            var choosetwo = $('#requirements-two').data('choose');
-        }else {
+        $('.Special-requirements').click(function() {
+            if (document.getElementById("requirements-two").checked == true) {
+                var choosetwo = $('#requirements-two').data('choose');
+            } else {
                 var choosetwo = 0;
-        }
-        // alert(choosetwo);
-        var _token = $('meta[name="csrf-token"]').attr('content');
-        $.ajax({
-            url: '{{ url('/thanh-toan/yeu-cau-dac-biet') }}',
-            method: 'get',
-            data: {
-                _token: _token,
-                choosetwo: choosetwo,
-
-            },
-            success: function(data) {
-                if (data == "true") {
-                    message_toastr("success", "Đã Ghi Lại Yêu Cầu!");
-                }else{
-                    message_toastr('success', "Đã Hủy Yêu Cầu!")
-                }
-            },
-            error: function() {
-                alert("Bug Huhu :<<");
             }
-        })
-       })
+            // alert(choosetwo);
+            var _token = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: '{{ url('/thanh-toan/yeu-cau-dac-biet') }}',
+                method: 'get',
+                data: {
+                    _token: _token,
+                    choosetwo: choosetwo,
 
-       $('.Btn_payment_box-Btn').click(function() {
+                },
+                success: function(data) {
+                    if (data == "true") {
+                        message_toastr("success", "Đã Ghi Lại Yêu Cầu!");
+                    } else {
+                        message_toastr('success', "Đã Hủy Yêu Cầu!")
+                    }
+                },
+                error: function() {
+                    alert("Bug Huhu :<<");
+                }
+            })
+        })
+
+        $('.Btn_payment_box-Btn').click(function() {
             var type_payment = $('input[type="radio"][name="type-payment"]:checked').val();
             var _token = $('meta[name="csrf-token"]').attr('content');
-            if(type_payment == 1){
+            if (type_payment == 1) {
                 window.location = '{{ url('/thanh-toan/momo-payment') }}';
-            }else if (type_payment == 4) {
+            } else if (type_payment == 4) {
                 window.location = '{{ url('/thanh-toan/direct-payment') }}';
             }
         });

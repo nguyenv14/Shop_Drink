@@ -99,15 +99,15 @@
                                     <input type="password" name="admin_password" class="form-control form-control-lg"
                                         id="exampleInputPassword1" placeholder="Password" value="{{ old('admin_password') }}">
                                 </div>
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="{{ env('CAPTCHA_KEY') }}"></div>
-                                    <br />
-                                    @if ($errors->has('g-recaptcha-response'))
+                                {{-- <div class="form-group"> --}}
+                                    {{-- <div class="g-recaptcha" data-sitekey="{{ env('CAPTCHA_KEY') }}"></div> --}}
+                                    {{-- <br /> --}}
+                                    {{-- @if ($errors->has('g-recaptcha-response')) --}}
                                         {{-- <span class="invalid-feedback" style="display:block">
                                             <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
                                         </span> --}}
-                                    @endif
-                                </div>
+                                    {{-- @endif --}}
+                                {{-- </div> --}}
                                 <div class="mt-3">
                                     <input type="submit"
                                         class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn"

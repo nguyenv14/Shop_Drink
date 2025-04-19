@@ -104,11 +104,11 @@
                                     <div class="g-recaptcha" data-sitekey="{{ env('CAPTCHA_KEY') }}"></div>
                                     <br />
                                     @if ($errors->has('g-recaptcha-response'))
-                                        {{-- <span class="invalid-feedback" style="display:block">
+                                        <span class="invalid-feedback" style="display:block">
                                             <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
-                                        </span> --}}
+                                        </span>
                                         <script>
-                                            // message_toastr("warning", "Bạn Chưa Vượt Mã Xác Minh Google !", "Cảnh Báo !");
+                                            message_toastr("warning", "Bạn Chưa Vượt Mã Xác Minh Google !", "Cảnh Báo !");
                                         </script>
                                     @endif
                                 </div>

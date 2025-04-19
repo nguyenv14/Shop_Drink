@@ -20,6 +20,7 @@
         }
     }
 </script>
+
 <form id="login" class="fromlogin" method="post" action="{{ url('/user/login-customer') }}">
 {{ csrf_field() }}
 {{-- <div for="input-fromlogin" class="fromlogin-close">

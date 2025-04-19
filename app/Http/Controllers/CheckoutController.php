@@ -144,7 +144,7 @@ class CheckoutController extends Controller
         $order->total_quantity = Cart::count();
         $order->order_date = $now;
         $order->save();
-
+        
         // Thêm dữ liệu order_detail
         foreach(Cart::content() as $cart){
             $order_Detail = new OrderDetails();

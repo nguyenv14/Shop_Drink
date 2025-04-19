@@ -22,10 +22,10 @@ class AuthController extends Controller
             'admin_email' => 'required|email|min:3|max:256|',
             'admin_password' => 'required|string|min:3|max:256|',
             'admin_password_retype' => 'required|string|min:3|max:256|',
-            'g-recaptcha-response' => new Captcha(), //dòng kiểm tra Captcha
+            // 'g-recaptcha-response' => new Captcha(), //dòng kiểm tra Captcha
         ];
         $customMessages = [
-            'required' => 'Trường :attribute Này Không Được Trống!.'
+            'required' => 'Trường :attribute Này Không Được Trống!!!.'
         ];
         $this->validate($request, $rules, $customMessages);
         if($request->admin_password !=  $request->admin_password_retype){
@@ -63,29 +63,28 @@ class AuthController extends Controller
     
 
     public function login(Request $request){
+        // dd($request->admin_password);
         $rules = [
             'admin_email' => 'required|email|min:3|max:256|',
             'admin_password' => 'required|string|min:3|max:256|',
-            'g-recaptcha-response' => new Captcha(), //dòng kiểm tra Captcha
+            // 'g-recaptcha-response' => new Captcha(), //dòng kiểm tra Captcha
         ];
         $customMessages = [
-            'required' => 'Trường :attribute Này Không Được Trống!.'
+            'required' => 'Trường :attribute Này Không Được Trống!!!.'
         ];
         $this->validate($request, $rules, $customMessages);
         $data = $request->all();
-
         if(Auth::attempt(['admin_email' => $request->admin_email, 'admin_password' => $request->admin_password])){
-            // echo Auth::attempt(['admin_email' => $request->admin_email, 'admin_password' => $request->admin_password]);
+            echo Auth::attempt(['admin_email' => $request->admin_email, 'admin_password' => $request->admin_password]);
             if($request->SaveLoginCooke == "ON"){
                 setcookie("Admin_Email", $request->admin_email, time() + 999999);
                 setcookie("Admin_Password", $request->admin_password, time() + 999999);
             }
-            // dd(Auth::user());
-            // $Authinfo = array(
-            //     'admin_id' => Auth::user()->admin_id,
-            //     'admin_name' => Auth::user()->admin_name,
-            // );
-            // session()->put('Auth_info', $Authinfo);
+            $Authinfo = array(
+                'admin_id' => 1,
+                'admin_name' => "Nguyễn Văn A",
+            );
+            session()->put('Auth_info', $Authinfo);
             $this->message('success','Đăng Nhập Bằng Authen Thành Công!');
             // return redirect('/admin/dashboard');
             return redirect("/admin/dashboard");

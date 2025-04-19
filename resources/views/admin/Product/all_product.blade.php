@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <div class="col-sm-2">
-                       
+                    
                         {{-- <div class="btn-group"> --}}
                             <button type="button" width="100px"  class="btn btn-outline-secondary dropdown-toggle"
                                 data-bs-toggle="dropdown">Danh Mục</button>
@@ -67,18 +67,13 @@
                             <th>
                                 <label for="product_category"> Danh Mục <i style="font-size: 18px"
                                         class="mdi mdi-sort-alphabetical"></i></label>
-                                <input type="checkbox" hidden class="btn-sort" id="product_category" data-type='category'>
+                                <input type="checkbox" hidden class="btn-sort" id="category_id" data-type='category'>
                             </th>
-                            {{-- <th>
-                                <label for="product_quantity">Lượng Bán<i style="font-size: 18px" class="mdi mdi-sort-numeric"></i></label>
-                                <input type="checkbox" hidden class="btn-sort" id="product_quantity" data-type='quantity'>
-                            </th> --}}
                             <th>
                                 <label for="product_price">Giá<i style="font-size: 18px"
                                         class="mdi mdi-sort-numeric"></i></label>
                                 <input type="checkbox" hidden class="btn-sort" id="product_price" data-type='price'>
                             </th>
-
                             <th>Ảnh Đại Diện</th>
                             <th>Hiển Thị</th>
                             <th>Thao Tác</th>
@@ -129,7 +124,7 @@
 
         count_Delete();
 
-      
+    
 
         function count_Delete() {
             $.ajax({
@@ -213,8 +208,8 @@
                 success: function(data) {
                     $('#loading-table-product').html(data);
                 },
-                error: function() {
-                    alert("Bug Huhu search :<<");
+                error: function(data) {
+                    alert(data);
                 }
             })
         });

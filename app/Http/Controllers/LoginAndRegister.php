@@ -18,8 +18,6 @@ class LoginAndRegister extends Controller
     /* Đăng Nhập */
     public function login_customer(Request $request)
     {
-        // dd('sss');
-
         $data = $request->validate([
             'customer_name' => 'required', /* Nghiên cứu thêm validate của lava có thể truyền vào |string|min5|max15 để very */
             'customer_password' => 'required',
@@ -28,8 +26,6 @@ class LoginAndRegister extends Controller
         $EmailorName = $data['customer_name'];
         $Password = md5($data['customer_password']);
         $result = Customers::where('customer_email', $EmailorName)->where('customer_password', $Password)->first();
-        // dd($result);
-        // dd($result);
         if ($result) {
             if($result->customer_status == 1){
                 $this->message('success', 'Chào Mừng '.$result->customer_name.' đã quay trở lại!!!');
@@ -45,59 +41,15 @@ class LoginAndRegister extends Controller
                 $this->message('error','Tài khoản của bạn đã bị vô hiệu hóa');
                 return redirect('/');
             }
-            // dd($result);
-            // $output .= 'success';
         } else {
-            // dd($result);
             $this->message('error', 'Tài khoản hoặc mật khẩu bị sai!');
             return redirect()->back();
-            // $output .= 'error';
         }
-        // echo $output;
     }
-
-    // public function load_login_customer(){
-    //     $output = '';
-    //     if(session()->get('customer_name')){
-    //         $output .= '
-    //         <label class="navbar-item">
-    //                             <label class="navbar-item-link">
-    //                                 <i class="fa-solid fa-user"></i>
-    //                             </label>
-    //                             <label class="navbar-item-link">
-    //                                 '. session()->get('customer_name') .'
-    //                             </label>
-    //                         </label>
-    //                         <a href="'. url('user/logout') .'">
-    //                         <label class="navbar-item">
-    //                             <label class="navbar-item-link">
-    //                                 <i class="fa-solid fa-right-from-bracket"></i>
-    //                             </label>
-    //                             <label class="navbar-item-link">
-    //                                 Đăng Xuất
-    //                             </label>
-    //                         </label>
-    //                     </a>
-    //         ';
-    //     }else{
-    //         $output .= '
-    //         <label for="nav-login-logout" class="navbar-item">
-    //         <label for="nav-login-logout" class="navbar-item-link">
-    //             <i class="fa-solid fa-user"></i>
-    //         </label>
-    //         <label for="nav-login-logout" class="navbar-item-link">
-    //             <i class="fa-solid fa-caret-down"></i>
-    //         </label>
-    //         </label>
-    //         ';
-    //     }
-    //     echo $output;
-    // }
 
     /* Đăng Ký */
     public function create_customer(Request $request)
     {
-
         $this->validate( $request,[
             'customer_name' => 'required',
             'customer_phone' => 'required',
@@ -112,51 +64,41 @@ class LoginAndRegister extends Controller
             'customer_password' => md5($request->customer_password),
             'customer_status' => 1,
         ); 
-
         $customer_check = Customers::where('customer_name', $data['customer_name'])->orwhere('customer_email', $data['customer_email'])->first();
-
         if($customer_check){
             echo "trung";
         }else{
             session()->put('rg_customer_name', $data['customer_name']);
             session()->put('rg_customer_email', $data['customer_email']);
             session()->put('customer_register', $data);
-
             if(session()->get('register_code')){
                 session()->forget('register_code');
             }
             $this->RandomCode();
             return Redirect('/user/MailToCustomer');
         }
-
-        
     }
 
     public function verification_code_rg(Request $request)
-
     {
         $register = session()->get('rg_customer_email');
         if(isset($register)){
             $register_code = session()->get('register_code');
         }
-
         if(isset($request->verycoderg) && $request->verycoderg == $register_code){
             echo "success_very_code";
             return Redirect('/user/successful-create-account');
         }else{
             echo "error_very_code";
         }
-  
     }
 
     public function successful_create_account()
     {
         $data = session()->get('customer_register');
-        // $data = session()->get('customer_register');
         DB::table('tbl_customers')->insert($data);
-        session()->flush(); // Hủy toàn bộ session
+        session()->flush(); 
     }
-
     /* Khôi Phục Mật Khẩu */
     public function find_account_recovery_pw(Request $request)
     {
@@ -170,7 +112,6 @@ class LoginAndRegister extends Controller
         } else {
             echo "account_not_found";
         }
-
     }
 
     /* Kiểm tra code đúng hay không */
@@ -214,8 +155,6 @@ class LoginAndRegister extends Controller
     public function logout()
     {
         Session()->flush(); // Hủy toàn bộ session
-        // Session::put('customer_id',Null);
-        // Session::put('customer_name',Null);
         setcookie("customer_name", null, 0);
         setcookie("customer_password", null, 0);
         return redirect('/');
@@ -223,7 +162,6 @@ class LoginAndRegister extends Controller
 
     public function bug()
     {
-        // Session()->flush(); // Hủy toàn bộ session
         $data = Session()->all(); // Hủy toàn bộ session
         dd($data);
     }
@@ -270,7 +208,6 @@ class LoginAndRegister extends Controller
             "code" => $code,
             "type" => $type,
         ); // send_mail of mail.blade.php
-
         Mail::send('pages.Login_Register.mailtocustomer', $data, function ($message) use ($to_name, $to_email) {
             $message->to($to_email)->subject("Xin Chào ! Shop BoNoDrink gửi bạn mail."); //send this mail with subject
             $message->from($to_email, $to_name); //send from this mail

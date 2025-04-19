@@ -261,7 +261,6 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                         else if (data == 'error') {
                             message_toastr("warning", "Mã Giảm Giá Không Tồn Tại !");
                         } else if(data == 'success'){
-                            // $('.coupon-box').html(data);
                             load_coupon();
                             load_payment();
                             message_toastr("success", "Đã Áp Dụng Mã Giảm Giá !");
@@ -279,7 +278,6 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
         // /* Gỡ Mã Giảm Giá */
         $('.coupon-box').on('click', '.fa-circle-xmark', function() {
-            // var _token = $('input[name="_token"]').val();
             $.ajax({
                 url: '{{ url('/gio-hang/delete-coupon') }}',
                 method: 'get',
@@ -421,7 +419,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                 result = 'wards';
             }
             $.ajax({
-                url: '{{ url('/admin/delivery/select-delivery') }}',
+                url: '{{ url('/gio-hang/select-delivery') }}',
                 method: 'POST',
                 data: {
                     action: action,
@@ -433,7 +431,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                     $('#' + result).html(data);
                 },
                 error: function() {
-                    alert("Nhân Ơi Fix Bug Huhu :<");
+                    alert("N Ơi Fix Bug Huhu :<");
                 },
             });
         });

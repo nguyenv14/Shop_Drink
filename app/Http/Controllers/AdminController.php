@@ -14,11 +14,7 @@ session_start();
 class AdminController extends Controller
 {
     public static function Authlogin(){ 
-        
-        // dd(Auth::id()); 
-        
         if(Auth::check()){
-            // $this->messa
             return redirect('/admin/auth/login-auth'); 
         }
     }
@@ -29,7 +25,6 @@ class AdminController extends Controller
             $admin = Admin::where('admin_email', $_COOKIE['admin_email'])->where('admin_password', $_COOKIE['admin_password'])->first();
             // dd($admin);
             if($admin){
-
                 session()->put('admin_id',$admin->admin_id);
                 session()->put('admin_name',$admin->admin_name);
                 return Redirect::to('admin/dashboard');
@@ -68,7 +63,7 @@ class AdminController extends Controller
             'admin_password_2' => 'required|string|min:3|max:256|',
         ];
         $customMessages = [
-            'required' => 'Trường :attribute Này Không Được Trống!.'
+            'required' => 'Trường :attribute Này Không Được Trống!!!.'
         ];
         $this->validate($request, $rules, $customMessages);
         if($request->admin_password_1 !=  $request->admin_password_2){
@@ -110,9 +105,9 @@ class AdminController extends Controller
                                             $checkadmin = '';
                                         }
                                         $output .= ' <input style="opacity:1;" type="radio" class="form-check-input"
-                                             name="roles'.$admin->admin_id .'"
-                                             '.$checkadmin.' value="1"
-                                             data-admin_id="'. $admin->admin_id .'">
+                                            name="roles'.$admin->admin_id .'"
+                                            '.$checkadmin.' value="1"
+                                            data-admin_id="'. $admin->admin_id .'">
                                         </label>
                                     </div>
                                 </td>

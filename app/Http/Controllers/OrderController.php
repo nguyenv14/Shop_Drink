@@ -14,6 +14,7 @@ use App\Models\OrderDetails;
 use App\Models\Payment;
 use App\Models\Shipping;
 use App\Models\Statistical;
+use App\Repositories\OrderRepository\OrderInterfaceRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +23,11 @@ use Session;
 use Illuminate\Support\Facades\Redirect;
 session_start();
 class OrderController extends Controller
-{
+{   
+    protected $orderRepository;
+    public function __construct(OrderInterfaceRepository $orderInterfaceRepository) {
+        $this->orderRepository = $orderInterfaceRepository;
+    }
 
     public function show_order_manager(){
         return view('admin.Order.order_manager');
@@ -36,7 +41,8 @@ class OrderController extends Controller
     */
 
     public function loading_order_manager(){
-        $orders = Order::orderBy('order_id', "DESC")->get();
+        $orders = $this->orderRepository->getListOrderDesc();
+        // Order::orderBy('order_id', "DESC")->get();
         $output = $this->print_order_manager($orders);
         return $output;
     }
@@ -44,13 +50,13 @@ class OrderController extends Controller
     public function filer_order(Request $request){
         $order_status = $request->value;
 
-        $orders = null;
-        if($order_status == ''){
-            $orders = Order::orderBy('order_id', "DESC")->get();
-        }else{
-            $orders = Order::where('order_status', $order_status)->orderBy('order_id', "DESC")->get();
-        }
-
+        // $orders = null;
+        // if($order_status == ''){
+        //     $orders = Order::orderBy('order_id', "DESC")->get();
+        // }else{
+        //     $orders = Order::where('order_status', $order_status)->orderBy('order_id', "DESC")->get();
+        // }
+        $orders = $this->orderRepository->filterOrder($order_status);
         $output = $this->print_order_manager($orders);
         return $output;
     }
@@ -58,7 +64,6 @@ class OrderController extends Controller
     public function  print_order_manager($orders){
         $output = '';
         if(count($orders) > 0){
-
         foreach($orders as $order){
             $output .= '
             <tr>
@@ -120,17 +125,14 @@ class OrderController extends Controller
 
     public function view_order(Request $request){
         $order_code = $request->order_code;
-        $order = Order::where('order_code', $order_code)->first();
-
+        $order = $this->orderRepository->getOrderByCode($order_code);
+        // Order::where('order_code', $order_code)->first();
         $customer_id = $order['customer_id'];
         $shipping_id = $order['shipping_id'];
         $coupon_name_code = $order['product_coupon'];
-
-        $shipping = Shipping::where('shipping_id', $shipping_id)->first();
-        $customer = Customers::where('customer_id', $customer_id)->first();
-
-        $orderdetails = OrderDetails::where('order_code', $order_code)->get();
-
+        $shipping = $this->orderRepository->getShippingId($shipping_id);
+        $customer = $this->orderRepository->getCustomerId($customer_id);
+        $orderdetails = $this->orderRepository->getOrderDetail($order_code);
         $coupon = Coupon::where('coupon_name_code', $coupon_name_code)->first();
 
         return view('admin.Order.view_order')->with(compact('order'))->with(compact('order', 'orderdetails', 'coupon', 'customer', 'shipping'));
@@ -140,12 +142,12 @@ class OrderController extends Controller
         $order_code = $request->order_code;
         $order_status = $request->order_status;
 
-        $order_edit = Order::where('order_code', $order_code)->first();
+        $order_edit = $this->orderRepository->getOrderByCode($order_code);
 
         $order_edit->order_status = $order_status;
         $order_edit->save();
-        $order = Order::where('order_code', $order_code)->first();
-        $customer = Customers::where('customer_id', $order->shipping->customer_id)->first();
+        $order = $this->orderRepository->getOrderByCode($order_code);
+        $customer = $this->orderRepository->getCustomerId($order->shipping->customer_id);
         if($customer){
             $customer->total_order +=1;
             $customer->save();
@@ -157,68 +159,63 @@ class OrderController extends Controller
             $this->email_to_order_customer($order_code, $order_status);
             echo 'refuse';
         }else if($order_status == 2){
-            $payment = Payment::where('payment_id', $order->payment_id)->first();
+            $payment = $this->orderRepository->getPaymentId($order->payment_id);
             $payment->payment_status = 1;
             $payment->save();
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
-            $statical = Statistical::where('order_date', $now)->first();
-            if($statical){
-                $statical['sales'] = $statical['sales'] + $order->total_price;
-                $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                $statical['total_order'] += 1;
+            // $statical = Statistical::where('order_date', $now)->first();
+            // if($statical){
+            //     $statical['sales'] = $statical['sales'] + $order->total_price;
+            //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+            //     $statical['total_order'] += 1;
     
-                $statical->save();
-            }else{
-                    // dd('huhu');
-                $statis = new Statistical();
-                $statis->order_date = $order->order_date;
-                $statis->sales = $order->total_price;
-                $statis->order_boom = 0;
-                $statis->total_price_boom = 0;    
-                $statis->quantity = $order->total_quantity;
-                $statis->total_order = 1;
-                $statis->save();
-            }
+            //     $statical->save();
+            // }else{
+            //     $statis = new Statistical();
+            //     $statis->order_date = $order->order_date;
+            //     $statis->sales = $order->total_price;
+            //     $statis->order_boom = 0;
+            //     $statis->total_price_boom = 0;    
+            //     $statis->quantity = $order->total_quantity;
+            //     $statis->total_order = 1;
+            //     $statis->save();
+            // }
             echo 'finished';
         }else if($order_status == 3){
-            $customer_boom = Customers::where('customer_id', $order->shipping->customer_id)->first();
+            $customer_boom = $this->orderRepository->getCustomerId($order->shipping->customer_id);
 
             if($customer_boom){
                 $customer_boom->total_order +=1;
                 $customer_boom->save();
             }
-
             $customer->order_boom +=1;
-
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
-    
-                $statical = Statistical::where('order_date', $now)->first();
-                if($statical){
-                    $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
-                    $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                    $statical['total_order'] += 1;
-                    $statical['order_boom'] += 1;
-                    $statical->save();
-                }else{
-                    // dd('huhu');
-                    $statis = new Statistical();
-                    $statis->order_date = $order->order_date;
-                    $statis->sales = 0;
-                    $statis->order_boom = 1;
-                    $statis->total_price_boom = $order->total_price;    
-                    $statis->quantity = $order->total_quantity;
-                    $statis->total_order = 1;
-                    $statis->save();
-                }
+                // $statical = Statistical::where('order_date', $now)->first();
+                // if($statical){
+                //     $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
+                //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+                //     $statical['total_order'] += 1;
+                //     $statical['order_boom'] += 1;
+                //     $statical->save();
+                // }else{
+                //     // dd('huhu');
+                //     $statis = new Statistical();
+                //     $statis->order_date = $order->order_date;
+                //     $statis->sales = 0;
+                //     $statis->order_boom = 1;
+                //     $statis->total_price_boom = $order->total_price;    
+                //     $statis->quantity = $order->total_quantity;
+                //     $statis->total_order = 1;
+                //     $statis->save();
+                // }
             echo 'return';
         }
     }
 
 
     public function email_to_order_customer($order_code, $order_status){
-        $order = Order::where('order_code', $order_code)->first();
-
-        $order_detail = OrderDetails::where('order_code',$order_code)->get();
+        $order = $this->orderRepository->getOrderByCode($order_code);
+        $order_detail = $this->orderRepository->getOrderDetail($order_code);
         $coupon = Coupon::where('coupon_name_code', $order->product_coupon)->first();
         if($order_status == 1){
             $type = ' Đơn Hàng '.$order->order_code.' Đã Được Duyệt ';
@@ -243,147 +240,122 @@ class OrderController extends Controller
         });
     }
 
-    public function delete_soft_order(Request $request){
-        $order_id = $request->order_id;
-        // dd($request->order_id);
-        // dd($order_id);
-        $order = Order::where('order_id', $order_id)->first();
-        // where('order_id', 50)->first();
+    // public function delete_soft_order(Request $request){
+    //     $order_id = $request->order_id;
+    //     $order = Order::where('order_id', $order_id)->first();
+    //     $shipping = Shipping::where('shipping_id', $order->shipping_id)->first();
+    //     $orderDetail = OrderDetails::where('order_code', $order->order_code)->get();
+    //     $payment = Payment::where('payment_id', $order->payment_id)->first();
+    //     $order->delete();
+    //     $shipping->delete();
+    //     $payment->delete();
+    //     foreach($orderDetail as $key => $value){
+    //         $value->delete();
+    //     }
+    // }
 
-        // dd($order);
+    // public function show_delete_soft_order(){
+    //     return view('admin.Order.list_delete_order_manager');
+    // }
 
-        $shipping = Shipping::where('shipping_id', $order->shipping_id)->first();
+    // public function loading_delete_order(){
+    //     $orders = Order::onlyTrashed()->orderBy('order_id', "DESC")->get();
 
-        $orderDetail = OrderDetails::where('order_code', $order->order_code)->get();
-        // $orderDetail_list = $orderDetail->toArray();
-        // dd($orderDetail);
-        // dd($orderDetail_list);
-        
-        $payment = Payment::where('payment_id', $order->payment_id)->first();
-
-        $order->delete();
-
-        $shipping->delete();
-        
-        $payment->delete();
-
-        foreach($orderDetail as $key => $value){
-          
-            $value->delete();
-        }
-    }
-
-    public function show_delete_soft_order(){
-
-        return view('admin.Order.list_delete_order_manager');
-    }
-
-    public function loading_delete_order(){
-        $orders = Order::onlyTrashed()->orderBy('order_id', "DESC")->get();
-
-        $output = '';
-        if(count($orders) > 0){
-
-        foreach($orders as $order){
-            $output .= '
-            <tr>
-                <td>'.$order->order_code.'</td>
-                <td>';
-                if($order->order_status == 0){
-                    $output .= '<span class="text-info" ><b>Đang chờ duyệt</b></span>';
-                }else if($order->order_status == -1){
-                    $output .= '<span class="text-danger" ><b>Đã từ chối đơn hàng</b></span>';
-                }else if($order->order_status == 1){
-                    $output .= '<span class="text-warning" ><b>Đã duyệt, đang vận chuyển</b></span>';
-                }else if($order->order_status == 2 || $order->order_status == 4){
-                    $output .= '<span class="text-success"><b>Hoàn thành</b></span>';
-                }else if($order->order_status == 3){
-                    $output .= '<span class="text-danger" ><b>Đơn hàng Từ Chối</b></span>';
-                }
-            $output .= '</td>';
+    //     $output = '';
+    //     if(count($orders) > 0){
+    //     foreach($orders as $order){
+    //         $output .= '
+    //         <tr>
+    //             <td>'.$order->order_code.'</td>
+    //             <td>';
+    //             if($order->order_status == 0){
+    //                 $output .= '<span class="text-info" ><b>Đang chờ duyệt</b></span>';
+    //             }else if($order->order_status == -1){
+    //                 $output .= '<span class="text-danger" ><b>Đã từ chối đơn hàng</b></span>';
+    //             }else if($order->order_status == 1){
+    //                 $output .= '<span class="text-warning" ><b>Đã duyệt, đang vận chuyển</b></span>';
+    //             }else if($order->order_status == 2 || $order->order_status == 4){
+    //                 $output .= '<span class="text-success"><b>Hoàn thành</b></span>';
+    //             }else if($order->order_status == 3){
+    //                 $output .= '<span class="text-danger" ><b>Đơn hàng Từ Chối</b></span>';
+    //             }
+    //         $output .= '</td>';
+    //         $output .= '
+    //             <td>'.$order->deleted_at.'</td>
+    //             <td>';
                 
-           
-            $output .= '
-                <td>'.$order->deleted_at.'</td>
-                <td>';
+    //                 $output .= '
+    //                 <button style="margin-top:10px" class="btn-sm btn-gradient-success btn-rounded btn-fw btn-order-status" data-toggle="modal" data-target="#restone" data-order_id="'.$order->order_id.'" data-order_status="1">Khôi Phục Đơn <i class="mdi mdi-calendar-check"></i></button><br>
+    //                 <button style="margin-top:10px" class="btn-sm btn-gradient-danger btn-fw btn-order-status" data-toggle="modal" data-target="#delete"  data-order_id="'.$order->order_id.'" data-order_status="0" >Xóa Vĩnh Viễn <i class="mdi mdi-delete-sweep"></i></button> <br>
+    //                 ';
                 
-                    $output .= '
-                    <button style="margin-top:10px" class="btn-sm btn-gradient-success btn-rounded btn-fw btn-order-status" data-toggle="modal" data-target="#restone" data-order_id="'.$order->order_id.'" data-order_status="1">Khôi Phục Đơn <i class="mdi mdi-calendar-check"></i></button><br>
-                    <button style="margin-top:10px" class="btn-sm btn-gradient-danger btn-fw btn-order-status" data-toggle="modal" data-target="#delete"  data-order_id="'.$order->order_id.'" data-order_status="0" >Xóa Vĩnh Viễn <i class="mdi mdi-delete-sweep"></i></button> <br>
-                    ';
-                
-            $output .= '
-           
-            </td>
-            </tr>';
-            }
-        }else{
-            $output .= '<tr>
-                <th colspan="6">Không có đơn hàng nào bị xóa.</th>
-            </tr>';
-        }
-        return $output;
-    }
+    //         $output .= '
+    //         </td>
+    //         </tr>';
+    //         }
+    //     }else{
+    //         $output .= '<tr>
+    //             <th colspan="6">Không có đơn hàng nào bị xóa.</th>
+    //         </tr>';
+    //     }
+    //     return $output;
+    // }
 
-    public function count_delete_soft(){
-        $order_delete_soft = Order::onlyTrashed()->get();
+    // public function count_delete_soft(){
+    //     $order_delete_soft = Order::onlyTrashed()->get();
 
-        $count = count($order_delete_soft);
-        $output = '';
-        if($count > 0){
-            $output .= ' ('.$count.')';
-        }
+    //     $count = count($order_delete_soft);
+    //     $output = '';
+    //     if($count > 0){
+    //         $output .= ' ('.$count.')';
+    //     }
 
-        return $output;
-    }
+    //     return $output;
+    // }
 
 
-    public function restone_or_delete(Request $request){
-        $order_id = $request->order_id;
-        $order_status = $request->order_status;
+    // public function restone_or_delete(Request $request){
+    //     $order_id = $request->order_id;
+    //     $order_status = $request->order_status;
         
-        $order = Order::withTrashed()->where('order_id', $order_id)->first();
+    //     $order = Order::withTrashed()->where('order_id', $order_id)->first();
         
-        $shipping = Shipping::withTrashed()->where('shipping_id', $order->shipping_id)->first();
+    //     $shipping = Shipping::withTrashed()->where('shipping_id', $order->shipping_id)->first();
 
-        $orderDetail = OrderDetails::withTrashed()->where('order_code', $order->order_code)->get();
+    //     $orderDetail = OrderDetails::withTrashed()->where('order_code', $order->order_code)->get();
         
-        $payment = Payment::withTrashed()->where('payment_id', $order->payment_id)->first();
+    //     $payment = Payment::withTrashed()->where('payment_id', $order->payment_id)->first();
 
-        if($order_status == 1){
-            $shipping->restore();
-            $payment->restore();
-            foreach($orderDetail as $value){
-                $value->restore();
-            }
-            $order->restore();
-        }else{
-            $order->forceDelete();
-            $shipping->forceDelete();
-            $payment->forceDelete();
-            foreach($orderDetail as $value){
-                $value->forceDelete();
-            }
-            $order->restore();
-        }
-    }
+    //     if($order_status == 1){
+    //         $shipping->restore();
+    //         $payment->restore();
+    //         foreach($orderDetail as $value){
+    //             $value->restore();
+    //         }
+    //         $order->restore();
+    //     }else{
+    //         $order->forceDelete();
+    //         $shipping->forceDelete();
+    //         $payment->forceDelete();
+    //         foreach($orderDetail as $value){
+    //             $value->forceDelete();
+    //         }
+    //         $order->restore();
+    //     }
+    // }
 
     public function print_order(Request $request){
         $order_code = $request->checkout_code;
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML($this->pdf_view($order_code));
-        // return $pdf->download('hoadon.pdf');
         return $pdf->stream();
     }
 
     public function pdf_view($order_code){
-        $order = Order::where('order_code', $order_code)->first();
-
-        $order_details = OrderDetails::where('order_code', $order_code)->get();
-
+        $order = $this->orderRepository->getOrderByCode($order_code);
+        $order_details =$this->orderRepository->getOrderDetail($order_code);
         $coupon = Coupon::where('coupon_name_code', $order->product_coupon)->first();
-
-        $shipping = Shipping::where('shipping_id', $order->shipping_id)->first();
+        $shipping = $this->orderRepository->getShippingId($order->shipping_id);
         $total_price = 0;
         $i = 0;
         $output ='
@@ -458,12 +430,12 @@ class OrderController extends Controller
                 }else{
                     $coupon_sale = 0;
                 }
-                 $output .= '   
+                $output .= '   
                 </tbody>
                 <tfoot>
                     <tr style="border-top:3px solid black; height: 40px;">
                         <th colspan="3">
-                           Total Price
+                            Total Price
                         </th>
                         <th colspan="2">'.number_format($total_price, 0, ',', '.').' đ</th>
                     </tr>
@@ -496,11 +468,6 @@ class OrderController extends Controller
     </div>';
         return $output; 
     }
-
-
-
-
-
     
     public function show_order(Request $request){
         $customer_id = $request->customer_id;
@@ -509,7 +476,7 @@ class OrderController extends Controller
                 $this->message('error', 'Bạn không được phép truy cập vào đường link này');
                 return redirect()->back();
             }
-            $customer = Customers::where('customer_id', $customer_id)->first();
+            $customer = $this->orderRepository->getCustomerId($customer_id);
             $orders = Order::where('customer_id', $customer_id)->orderby('order_id', "DESC")->paginate(5);
             return view('pages.home.my_order')->with( compact('customer', 'orders'));
         }else{
@@ -528,26 +495,23 @@ class OrderController extends Controller
         $order_code = $request->order_code;
 
         $order = Order::where('order_code', $order_code)->get();
-        // dd($order);
         $output = '';
         if(count($order) > 0){
             $output .= $this->print_my_order($order);
         }else{
             $output .= 'fail';
         }
-        // dd($output);
         return $output;
     }
 
     public function print_my_order($orders){
-       
         $output = '';
         if(count($orders) > 0){
             foreach($orders as $order){
                 $coupon = Coupon::where('coupon_name_code', $order->product_coupon)->first();
-                $order_details = OrderDetails::where('order_code', $order->order_code)->get();
-                $shipping = Shipping::where('shipping_id', $order->shipping_id)->first();
-                $payment = Payment::where('payment_id', $order->payment_id)->first();
+                $order_details = $this->orderRepository->getOrderDetail($order->order_code);
+                $shipping = $this->orderRepository->getShippingId($order->shipping_id);
+                $payment = $this->orderRepository->getPaymentId($order->payment_id);
                 $total_price = 0;
                 $output .= ' <div class="container order_box mt-3">
                 <h4>Mã Đơn: '.$order->order_code.' - '.$order->created_at.'</h4>
@@ -600,10 +564,10 @@ class OrderController extends Controller
                             <tr style="border-bottom: 1px solid #0c0c0c;">
                                 <th>Mã Giảm Giá</th>';
                                 if($coupon){
-                                   $output .= '<th style="text-align: right;"> '.$order->product_coupon.' - '.number_format($coupon_sale, 0, ',', '.').'đ</th>';
+                                    $output .= '<th style="text-align: right;"> '.$order->product_coupon.' - '.number_format($coupon_sale, 0, ',', '.').'đ</th>';
                                     
                                 }else{
-                                   $output .= '<th style="text-align: right;">Không có</th>';
+                                    $output .= '<th style="text-align: right;">Không có</th>';
                                 }
                             $output .= '
                             </tr>
@@ -668,8 +632,8 @@ class OrderController extends Controller
         $order_id = $request->order_id;
         $status = $request->order_status;
 
-        $order = Order::where("order_id", $order_id)->first();
-        $payment = Payment::where('payment_id', $order->payment_id)->first();
+        $order = $this->orderRepository->getOrderById($order_id);
+        $payment = $this->orderRepository->getPaymentId($order->payment_id);
 
         if($status == 'nhận'){
             $order->order_status = 2;
@@ -680,47 +644,47 @@ class OrderController extends Controller
 
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
 
-            $statical = Statistical::where('order_date', $now)->first();
-            if($statical){
-                $statical['sales'] = $statical['sales'] + $order->total_price;
-                $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                $statical['total_order'] += 1;
+            // $statical = Statistical::where('order_date', $now)->first();
+            // if($statical){
+            //     $statical['sales'] = $statical['sales'] + $order->total_price;
+            //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+            //     $statical['total_order'] += 1;
 
-                $statical->save();
-            }else{
-                // dd('huhu');
-                $statis = new Statistical();
-                $statis->order_date = $order->order_date;
-                $statis->sales = $order->total_price;
-                $statis->order_boom = 0;
-                $statis->total_price_boom = 0;    
-                $statis->quantity = $order->total_quantity;
-                $statis->total_order = 1;
-                $statis->save();
-            }
+            //     $statical->save();
+            // }else{
+            //     // dd('huhu');
+            //     $statis = new Statistical();
+            //     $statis->order_date = $order->order_date;
+            //     $statis->sales = $order->total_price;
+            //     $statis->order_boom = 0;
+            //     $statis->total_price_boom = 0;    
+            //     $statis->quantity = $order->total_quantity;
+            //     $statis->total_order = 1;
+            //     $statis->save();
+            // }
         }else{ 
             $order->order_status = 3;
             $order->save();
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
 
-            $statical = Statistical::where('order_date', $now)->first();
-            if($statical){
-                $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
-                $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                $statical['total_order'] += 1;
-                $statical['order_boom'] += 1;
-                $statical->save();
-            }else{
-                // dd('huhu');
-                $statis = new Statistical();
-                $statis->order_date = $order->order_date;
-                $statis->sales = 0;
-                $statis->order_boom = 1;
-                $statis->total_price_boom = $order->total_price;    
-                $statis->quantity = $order->total_quantity;
-                $statis->total_order = 1;
-                $statis->save();
-            }
+            // $statical = Statistical::where('order_date', $now)->first();
+            // if($statical){
+            //     $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
+            //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+            //     $statical['total_order'] += 1;
+            //     $statical['order_boom'] += 1;
+            //     $statical->save();
+            // }else{
+            //     // dd('huhu');
+            //     $statis = new Statistical();
+            //     $statis->order_date = $order->order_date;
+            //     $statis->sales = 0;
+            //     $statis->order_boom = 1;
+            //     $statis->total_price_boom = $order->total_price;    
+            //     $statis->quantity = $order->total_quantity;
+            //     $statis->total_order = 1;
+            //     $statis->save();
+            // }
         }
     }
 
@@ -733,10 +697,10 @@ class OrderController extends Controller
             $output .= '
             <a href="'.url('admin/order-manager').'" class="dropdown-item preview-item">
                             <div class="preview-thumbnail">
-                              <img src="'.url('public/fontend/assets/iconlogo/logo1.png').'" alt="image" class="profile-pic">
+                            <img src="'.url('public/fontend/assets/iconlogo/logo1.png').'" alt="image" class="profile-pic">
                             </div>
                             <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
-                              <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Có <span style="color:red; font-weight:600;">'.$count_order.'</span> đơn hàng đang chờ bạn xét duyệt</h6>
+                            <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Có <span style="color:red; font-weight:600;">'.$count_order.'</span> đơn hàng đang chờ bạn xét duyệt</h6>
                             </div>
             </a>
             ';
@@ -751,9 +715,7 @@ class OrderController extends Controller
     public function search_order(Request $request){
         $order_code = $request->order_code;
         $order_customer = $request->customer_id;
-
         $order = Order::where('order_code', $order_code)->where('customer_id',$order_customer)->get();
-
         $output = '';
         if($order){
             $output = $this->print_my_order($order);
@@ -775,7 +737,6 @@ class OrderController extends Controller
 
             if($customer_boom){
                 $customer_boom->total_order +=1;
-                // $customer_boom->order_boom +=1;
                 $customer_boom->save();
             }
             $order->order_status = 2;
@@ -786,23 +747,23 @@ class OrderController extends Controller
 
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
 
-            $statical = Statistical::where('order_date', $now)->first();
-            if($statical){
-                $statical['sales'] = $statical['sales'] + $order->total_price;
-                $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                $statical['total_order'] += 1;
+            // $statical = Statistical::where('order_date', $now)->first();
+            // if($statical){
+            //     $statical['sales'] = $statical['sales'] + $order->total_price;
+            //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+            //     $statical['total_order'] += 1;
 
-                $statical->save();
-            }else{
-                // dd('huhu');
-                $statis = new Statistical();
-                $statis->order_date = $order->order_date;
-                $statis->sales = $order->total_price;
-                $statis->profit = 0;    
-                $statis->quantity = $order->total_quantity;
-                $statis->total_order = 1;
-                $statis->save();
-            }
+            //     $statical->save();
+            // }else{
+            //     // dd('huhu');
+            //     $statis = new Statistical();
+            //     $statis->order_date = $order->order_date;
+            //     $statis->sales = $order->total_price;
+            //     $statis->profit = 0;    
+            //     $statis->quantity = $order->total_quantity;
+            //     $statis->total_order = 1;
+            //     $statis->save();
+            // }
         }else{
             $order->order_status = 3;
             $order->save();
@@ -816,24 +777,24 @@ class OrderController extends Controller
             }
             $now = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
 
-            $statical = Statistical::where('order_date', $now)->first();
-            if($statical){
-                $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
-                $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
-                $statical['total_order'] += 1;
-                $statical['order_boom'] += 1;
-                $statical->save();
-            }else{
-                // dd('huhu');
-                $statis = new Statistical();
-                $statis->order_date = $order->order_date;
-                $statis->sales = 0;
-                $statis->order_boom = 1;
-                $statis->total_price_boom = $order->total_price;    
-                $statis->quantity = $order->total_quantity;
-                $statis->total_order = 1;
-                $statis->save();
-            }
+            // $statical = Statistical::where('order_date', $now)->first();
+            // if($statical){
+            //     $statical['total_price_boom'] = $statical['total_price_boom'] + $order->total_price;
+            //     $statical['quantity'] = $statical['quantity'] + $order->total_quantity;
+            //     $statical['total_order'] += 1;
+            //     $statical['order_boom'] += 1;
+            //     $statical->save();
+            // }else{
+            //     // dd('huhu');
+            //     $statis = new Statistical();
+            //     $statis->order_date = $order->order_date;
+            //     $statis->sales = 0;
+            //     $statis->order_boom = 1;
+            //     $statis->total_price_boom = $order->total_price;    
+            //     $statis->quantity = $order->total_quantity;
+            //     $statis->total_order = 1;
+            //     $statis->save();
+            // }
         }
         $order_print = Order::where("order_id", $order_id)->get();
         $output = $this->print_my_order($order_print);
@@ -847,7 +808,6 @@ class OrderController extends Controller
         $content_cm = $request->content_cm;
 
         $order_details = OrderDetails::whereIn('order_code',[$order_code])->get();
-        // dd($order_details);
         if(session()->get('customer_id')){
             foreach($order_details as $order_detail){
                 $comment_product = new CommentProduct();
@@ -857,7 +817,7 @@ class OrderController extends Controller
                 $comment_product['content_comment'] = $content_cm;
                 $comment_product->save();
             }
-            $order = Order::where('order_code', $order_code)->first();
+            $order = $this->orderRepository->getOrderByCode($order_code);
             $order['order_status'] = 4;
             $order->save();
         }

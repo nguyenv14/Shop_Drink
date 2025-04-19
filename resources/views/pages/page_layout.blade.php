@@ -144,7 +144,7 @@
                                 <i class="fa-solid fa-cart-shopping"></i> 
                              
                               <span class="count-cart">
-                                {{ Cart::count(); }}
+                                {{ Cart::count() }}
                               </span>
                             </a>
                         </li>

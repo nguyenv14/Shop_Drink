@@ -502,6 +502,4 @@
     })
 </script>
 
-
-
 @endsection

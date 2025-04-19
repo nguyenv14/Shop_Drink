@@ -19,14 +19,6 @@
         </nav>
     </div>
     
-
-    <?php
-    $mesage = Session::get('mesage');
-    if ($mesage) {
-        echo $mesage;
-        Session::put('mesage', null);
-    }
-    ?>
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
@@ -117,8 +109,9 @@
             })
         }
         load_slider(notePage);
+        load_count_delete();
 
-        setInterval(load_count_delete, 200);
+       // setInterval(load_count_delete, 1000);
         // function load_slider(){
         //     $.ajax({
         //         url: '{{ url('admin/slider/load-slider') }}',
@@ -146,7 +139,8 @@
                 success: function(data){
                     // $('tbody').html(data);
                     load_slider(notePage);
-                    message_toastr('success', 'Thành công', 'Slide đã vào thùng rác');
+                    load_count_delete();
+                 // message_toastr('success', 'Thành công', 'Slide đã vào thùng rác');
                     // load_slider();
                 },
                 error: function(data) {

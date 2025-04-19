@@ -18,6 +18,12 @@
             </ul>
         </nav>
     </div>
+    <<div class="form-group">
+      <label for=""></label>
+      <input type="checkbox"
+        class="form-control" name="" id="" aria-describedby="helpId" placeholder="">
+      <small id="helpId" class="form-text text-muted">Help text</small>
+    </div>
 
     <?php
     $mesage = Session::get('mesage');

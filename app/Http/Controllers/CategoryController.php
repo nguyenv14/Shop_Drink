@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Repositories\CategoryRepository\CategoryInterfaceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Pagination\Paginator;
@@ -17,9 +18,17 @@ session_start();
 class CategoryController extends Controller
 {
 
+    /**
+     * @var PostRepositoryInterface|\App\Repositories\Repository
+     */
+    protected $categoryRepository;
+    public function __construct(CategoryInterfaceRepository $categoryInterfaceRepository)
+    {
+        $this->categoryRepository = $categoryInterfaceRepository;
+    }
+
     public function all_category(){
-        $all_category = Category::paginate(5);
-        // dd($all_category);
+        $all_category = $this->categoryRepository->getAllByPaginate(5);
         return view('admin.Category.all_category')->with('all_category', $all_category);
     }
 
@@ -28,31 +37,23 @@ class CategoryController extends Controller
     }
 
     public function save_category(Request $request){
-        $data = $request->all();
-        $category = new Category();
-        $category['category_name'] = $data['category_name'];
-        $category['category_status'] = $data['category_status'];
-        $category['category_desc'] = $data['category_desc'];
-        
-
-        $category->save();
-        return Redirect('admin/category/all-category');
+        $result = $this->categoryRepository->insertCategory($request->all());
+        if($result == true){
+            $this->message("success", "Thêm danh mục mới thành công!");
+            return Redirect('admin/category/all-category');
+        }else{
+            $this->message("warning", "Tên của danh mục bị trùng, vui lòng đổi tên khác!");
+            return Redirect('admin/category/all-category');
+        }
     }
 
     public function edit_category(Request $request){
-        $category_id = $request->category_id;
-        $category_old = Category::where('category_id', $category_id)->first();
+        $category_old = $this->categoryRepository->findCategoryId($request->category_id);
         return view('admin.Category.edit_category')->with('category_old', $category_old);
     }
 
     public function update_category(Request $request){
-        $data = $request->all();
-        $category = Category::where('category_id', $data['category_id'])->first();
-        $category['category_name'] = $data['category_name'];
-        // $category['category_status'] = $data['category_status'];
-        $category['category_desc'] = $data['category_desc'];
-       
-        $category->save();
+        $this->categoryRepository->updateCategory($request->all());
         return Redirect('admin/category/all-category');
     }
 
@@ -66,11 +67,11 @@ class CategoryController extends Controller
                 <td>'. $category->category_desc .'</td>
                 <td>';
                 if ($category->category_status == 1){       
-                     $output .='  <i style="color: rgb(52, 211, 52); font-size: 30px" class="mdi mdi-toggle-switch btn-un-active" data-category_id="'.$category->category_id.'" data-status="0"></i>';
+                    $output .='  <i style="color: rgb(52, 211, 52); font-size: 30px" class="mdi mdi-toggle-switch btn-un-active" data-category_id="'.$category->category_id.'" data-status="0"></i>';
                 }else{
-                      $output .=' <i style="color: rgb(196, 203, 196);font-size: 30px" class="mdi mdi-toggle-switch-off btn-un-active" data-category_id="'.$category->category_id.'" data-status="1"></i>';
+                    $output .=' <i style="color: rgb(196, 203, 196);font-size: 30px" class="mdi mdi-toggle-switch-off btn-un-active" data-category_id="'.$category->category_id.'" data-status="1"></i>';
                 }
-                   $output .=' </td>
+                    $output .=' </td>
                 <td>'.$category->created_at.'</td>
 
                 <td>
@@ -84,18 +85,9 @@ class CategoryController extends Controller
     public function un_active_category(Request $request){
         $category_id = $request->category_id;
         $status = $request->status;
-
-        $category = Category::where('category_id', $category_id)->first();
-
-        $category->category_status = $status;
-        $category->save();
+        $result = $this->categoryRepository->un_active_category($category_id, $status);
+        return $result;
     }
-
-
-
-
-
-
 
 
     /* Xóa mềm */
@@ -106,25 +98,21 @@ class CategoryController extends Controller
 
 
     public function delete_soft_category(Request $request){
-        $category_id = $request->category_id;
-
-        $category_delete = Category::where('category_id', $category_id)->first();
-        $category_delete->delete();
+        $result = $this->categoryRepository->deleteCategory($request->category_id);
+        return $result;
     }
 
     public function load_delete_soft_category(){
-        $all_categorys_delete = Category::onlyTrashed()->get();
-        $category_delete = Category::onlyTrashed()->first();
+        $all_categorys_delete = $this->categoryRepository->getBin();
+        // Category::onlyTrashed()->get();
         $output = '';
-        if($category_delete){
+        if($all_categorys_delete->count() > 0){
             // dd($all_category_delete_soft);
             foreach ($all_categorys_delete as $key => $category) {
                 $output .= '<tr>
                 <td>' . $category->category_id . '</label>
                 </td>
                 <td>' . $category->category_name . '</td>
-            
-               
                 <td>' . $category->category_desc . '</td>
                 <td>';
                 
@@ -149,13 +137,7 @@ class CategoryController extends Controller
         $category_id = $request->category_id;
         $type = $request->type;
 
-        if($type == -1){
-            $category = Category::withTrashed()->where('category_id', $category_id)->first();
-            $category->restore();
-        }else{
-            $category = Category::withTrashed()->where('category_id', $category_id)->first();
-            $category->forceDelete();
-        }
+        $this->categoryRepository->deleteAndRestore($category_id, $type);
     }
 
     public function count_delete(){
@@ -167,6 +149,14 @@ class CategoryController extends Controller
             $output .= '('.$countDelete.')';
         }
         echo $output;
+    }
+
+    public function message($type,$content){
+        $message = array(
+            "type" => $type,
+            "content" => $content,
+        ); 
+        session()->put('message', $message);
     }
 
 }

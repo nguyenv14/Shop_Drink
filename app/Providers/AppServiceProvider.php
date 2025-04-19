@@ -16,6 +16,42 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+        $this->app->singleton(
+            \App\Repositories\SliderRepository\SliderInterfaceRepository::class,
+            \App\Repositories\SliderRepository\SliderRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\ProductRepository\ProductInterfaceRepository::class,
+            \App\Repositories\ProductRepository\ProductRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\CategoryRepository\CategoryInterfaceRepository::class,
+            \App\Repositories\CategoryRepository\CategoryRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\GalleryProductRepository\GalleryProductInterfaceRepository::class,
+            \App\Repositories\GalleryProductRepository\GalleryProductRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\FlashsaleRepository\FlashsaleInterfaceRepository::class,
+            \App\Repositories\FlashsaleRepository\FlashsaleRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\CouponRepository\CouponInterfaceRepository::class,
+            \App\Repositories\CouponRepository\CouponRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\CartRepository\CartInterfaceRepository::class,
+            \App\Repositories\CartRepository\CartRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\ProductTypeRepository\ProductTypeInterfaceRepository::class,
+            \App\Repositories\ProductTypeRepository\ProductTypeRepository::class,
+        );
+        $this->app->singleton(
+            \App\Repositories\OrderRepository\OrderInterfaceRepository::class,
+            \App\Repositories\OrderRepository\OrderRepository::class,
+        );
     }
 
     /**

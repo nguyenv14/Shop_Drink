@@ -321,47 +321,47 @@
                     </li>
 
                     @hasanyroles(['admin', 'manager'])
-                    <li class="nav-item">
+                        <li class="nav-item">
 
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic-coupon" aria-expanded="false"
-                            aria-controls="ui-basic">
-                            <span class="menu-title">Quản Lý Sự Kiện Ưu Đãi</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-crosshairs-gps menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic-coupon">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    Quản Lí Mã Giảm Giá
-                                </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ URL::to('admin/coupon/all-coupon') }}">Danh
-                                        Sách Mã Giảm Giá</a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ URL::to('admin/coupon/add-coupon') }}">Thêm
-                                        Mã Giảm
-                                        Giá</a>
-                                </li>
-                            </ul>
+                            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic-coupon" aria-expanded="false"
+                                aria-controls="ui-basic">
+                                <span class="menu-title">Quản Lý Sự Kiện Ưu Đãi</span>
+                                <i class="menu-arrow"></i>
+                                <i class="mdi mdi-crosshairs-gps menu-icon"></i>
+                            </a>
+                            <div class="collapse" id="ui-basic-coupon">
+                                <ul class="nav flex-column sub-menu">
+                                    <li class="nav-item">
+                                        Quản Lí Mã Giảm Giá
+                                    </li>
+                                    <li class="nav-item"> <a class="nav-link"
+                                            href="{{ URL::to('admin/coupon/all-coupon') }}">Danh
+                                            Sách Mã Giảm Giá</a>
+                                    </li>
+                                    <li class="nav-item"> <a class="nav-link"
+                                            href="{{ URL::to('admin/coupon/add-coupon') }}">Thêm
+                                            Mã Giảm
+                                            Giá</a>
+                                    </li>
+                                </ul>
 
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    Quản Lí Sự Kiện FlashSale
-                                </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ URL::to('admin/flashsale/all-product-flashsale') }}">Danh
-                                        Sách Sản Phẩm</a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ URL::to('admin/flashsale/add-product-flashsale') }}">Thêm
-                                        Sản Phẩm Vào SK</a>
-                                </li>
-                            </ul>
+                                <ul class="nav flex-column sub-menu">
+                                    <li class="nav-item">
+                                        Quản Lí Sự Kiện FlashSale
+                                    </li>
+                                    <li class="nav-item"> <a class="nav-link"
+                                            href="{{ URL::to('admin/flashsale/all-product-flashsale') }}">Danh
+                                            Sách Sản Phẩm</a>
+                                    </li>
+                                    <li class="nav-item"> <a class="nav-link"
+                                            href="{{ URL::to('admin/flashsale/add-product-flashsale') }}">Thêm
+                                            Sản Phẩm Vào SK</a>
+                                    </li>
+                                </ul>
 
-                        </div>
+                            </div>
 
-                    </li>
+                        </li>
                     @endhasanyroles
                     @hasanyroles(['admin', 'manager'])
                     <li class="nav-item">

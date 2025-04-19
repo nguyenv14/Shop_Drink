@@ -375,7 +375,7 @@ Route::group(['prefix' => '/gio-hang'], function () {
     Route::POST('/update-all-cart', [CartController::class, 'update_all_cart']);
     Route::get('/check-coupon', [CartController::class, 'check_coupon']);
     Route::get('/delete-coupon', [CartController::class, 'delete_coupon']);
-    Route::POST('/select-delivery', [CartController::class, 'select_delivery']);
+    Route::POST('/select-delivery', [DeliveryController::class, 'select_delivery']);
     
     Route::POST('/caculate-fee', [CartController::class, 'caculator_fee']);
     Route::post('/confirm-cart', [CartController::class, 'confirm_cart']);

@@ -21,14 +21,10 @@ class HomeController extends Controller
         $dataCoupon = Coupon::inRandomOrder()->take(2)->get();
         $dataProduct = Product::where('product_status', 1)->where('flashsale_status', 0)->orderBy('product_id', 'DESC')->take(4)->get();
         $dataProduct_flashsale = Flashsale::where('flashsale_status', 1)->get();
-
         $new_big = News::where('display', 1)->orderby('id_news', "DESC")->first();
-
         $new_smalls = News::where('display', 1)->whereNotIn('id_news', [$new_big->id_news])->orderby('id_news', "DESC")->take(4)->get();
         $new_banner = News::inRandomorder()->first();
-        // dd($new_smalls);
         return view('pages.home.trangchu')->with(compact('dataSlider', 'dataCoupon', 'dataProduct', 'dataProduct_flashsale', 'new_big', 'new_smalls', 'new_banner'));
-        // ->with(compact('dataCategory', 'all_product','flashsale','coupons'));
     }
  
 

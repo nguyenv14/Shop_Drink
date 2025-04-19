@@ -23,7 +23,6 @@
             <div class="card-body">
                 <h4 style="margin-top: -15px" class="card-title">Cập Nhật Sản Phẩm</h4>
                 <form class="forms-sample" action="{{ 'update-product' }}" method="post" enctype="multipart/form-data">
-                   
                         {{ csrf_field() }}
                         <input type="hidden" class="form-control" id="" name="product_id" placeholder="ID ẩn"
                             value="{{ $product_old->product_id }}">
@@ -34,7 +33,7 @@
                         </div>
                         <div class="form-group">
                             <label for="">Danh Mục Sản Phẩm</label>
-                            <select class="form-control" name="product_category">
+                            <select class="form-control" name="category_id">
                                 @foreach ($data_category as $key => $dataCategory)
                                     @if ($dataCategory->category_id == $product_old->category_id)
                                         <option selected value="{{ $dataCategory->category_id }}">
@@ -64,7 +63,6 @@
                                 <option value="6">Combo set</option>
                             </select>
                         </div> --}}
-      
                         {{-- <div class="form-group">
                             <label for="">Lượng Bán</label>
                             <input type="number" class="form-control" value="{{ $product_old->product_unit_sold }}"  name="product_unit_sold" id="" placeholder="Lượng Bán">
@@ -85,7 +83,7 @@
                             <div class="mb-3">
                                 {{-- <label for="formFile" class="form-label">Default file input example</label> --}}
                                 <input name="product_image" class="form-control" type="file" id="formFile">
-                              </div>
+                            </div>
                         </div>
                         
                     <button type="submit" class="btn btn-gradient-primary me-2">Submit</button>

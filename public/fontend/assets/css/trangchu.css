@@ -230,7 +230,7 @@ li {
 
 /*--------------------------------------------------------------------*/
 .fromlogin {
-  position: absolute;
+  /* position: fixed; */
   z-index: 996;
   width: 420px;
   height: 516px;
